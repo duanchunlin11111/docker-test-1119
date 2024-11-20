@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>User Profile</title>
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .profile-item {
+            margin: 10px 0;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .back-link {
+            display: inline-block;
+            margin: 20px 0;
+            color: blue;
+            text-decoration: none;
+        }
+        .bio {
+            white-space: pre-wrap;
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <a href="/" class="back-link">← Back to User List</a>
+        <div id="userProfile">Loading...</div>
+    </div>
+
+    <script>
+        const userId = new URLSearchParams(window.location.search).get('id');
+        
+        fetch(`/api/user/${userId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(user => {
+                const profile = `
+                    <h1>${user.name}'s Profile</h1>
+                    <div class="profile-item">
+                        <strong>Email:</strong> ${user.email}
+                    </div>
+                    <div class="profile-item">
+                        <strong>Phone:</strong> ${user.phone || 'Not set'}
+                    </div>
+                    <div class="profile-item">
+                        <strong>Age:</strong> ${user.age || 'Not set'} years old
+                    </div>
+                    <div class="profile-item">
+                        <strong>Height:</strong> ${user.height || 'Not set'} cm
+                    </div>
+                    <div class="profile-item">
+                        <strong>Address:</strong> ${user.address || 'Not set'}
+                    </div>
+                    <div class="profile-item">
+                        <strong>Nationality:</strong> ${user.nationality || 'Not set'}
+                    </div>
+                    <div class="profile-item">
+                        <strong>Bio:</strong>
+                        <div class="bio">${user.bio || 'No bio available'}</div>
+                    </div>
+                `;
+                document.getElementById('userProfile').innerHTML = profile;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('userProfile').innerHTML = 'Failed to load user profile';
+            });
+    </script>
+</body>
+</html> 

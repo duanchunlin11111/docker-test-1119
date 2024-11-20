@@ -1,42 +1,65 @@
 version: '3'
 
 services:
-
-  dockertest1118_nginx:    # 修改这里
+  dockertest1118_nginx:
     image: nginx:alpine
     ports:
       - "80:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
-      - dockertest1118_app    # 修改这里
+      - dockertest1118_app1
+      - dockertest1118_app2
+      - dockertest1118_app3
     restart: always
 
-  dockertest1118_app:    # 修改这里
-    build: . 
-    ports:
-      - ":::3000:3000"
+  dockertest1118_app1:
+    build: .
     environment:
-      - DB_HOST=dockertest1118_db    # 修改这里
+      - DB_HOST=dockertest1118_db
       - DB_USER=root
       - DB_PASSWORD=77447744dcl
       - DB_NAME=testdb
     depends_on:
-      - dockertest1118_db    # 修改这里
-    restart: always
+      - dockertest1118_db
+    restart: on-failure
 
-  dockertest1118_db:    # 修改这里
+  dockertest1118_app2:
+    build: .
+    environment:
+      - DB_HOST=dockertest1118_db
+      - DB_USER=root
+      - DB_PASSWORD=77447744dcl
+      - DB_NAME=testdb
+    depends_on:
+      - dockertest1118_db
+    restart: on-failure
+
+  dockertest1118_app3:
+    build: .
+    environment:
+      - DB_HOST=dockertest1118_db
+      - DB_USER=root
+      - DB_PASSWORD=77447744dcl
+      - DB_NAME=testdb
+    depends_on:
+      - dockertest1118_db
+    restart: on-failure
+
+  dockertest1118_db:
     image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
     ports:
-      - "127.0.0.1:3306:3306"
-      - "127.0.0.1:33060:33060"
+      - "3306:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=77447744dcl
       - MYSQL_DATABASE=testdb
+      - MYSQL_CHARACTER_SET_SERVER=utf8mb4
+      - MYSQL_COLLATION_SERVER=utf8mb4_unicode_ci
     volumes:
-      - dockertest1118_data:/var/lib/mysql    # 修改这里
-      - ./backup.sql:/docker-entrypoint-initdb.d/backup.sql  # 添加
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: always
 
 volumes:
-  dockertest1118_data:    # 修改这里
+  mysql_data:

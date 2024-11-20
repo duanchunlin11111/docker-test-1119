@@ -1,21 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>MySQL 数据显示 - 2024/11/18</title>
     <style>
         table { border-collapse: collapse; width: 100%; }
         th, td { border: 1px solid #ddd; padding: 8px; }
         th { background-color: #f2f2f2; }
+        .user-link { color: blue; cursor: pointer; text-decoration: underline; }
+        .error { color: red; padding: 10px; }
     </style>
 </head>
 <body>
     <h1>MySQL 数据显示 - 2024/11/18</h1>
-    <div id="userList"></div>
+    <div id="userList">数据加载中...</div>
+    <div id="errorLog"></div>
 
     <script>
+        const errorLog = document.getElementById('errorLog');
+        
         fetch('/api/users')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(users => {
+                console.log('Received users:', users); // 调试日志
+                if (!Array.isArray(users)) {
+                    throw new Error('Received data is not an array');
+                }
+                
                 const table = `
                     <table>
                         <tr>
@@ -26,7 +43,7 @@
                         ${users.map(user => `
                             <tr>
                                 <td>${user.id}</td>
-                                <td>${user.name}</td>
+                                <td><a href="/user_profile.html?id=${user.id}" class="user-link">${user.name}</a></td>
                                 <td>${user.email}</td>
                             </tr>
                         `).join('')}
@@ -37,6 +54,7 @@
             .catch(error => {
                 console.error('Error:', error);
                 document.getElementById('userList').innerHTML = '加载数据失败';
+                errorLog.innerHTML = `<div class="error">错误详情: ${error.message}</div>`;
             });
     </script>
 </body>
